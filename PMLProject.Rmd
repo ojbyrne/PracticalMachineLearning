@@ -30,7 +30,7 @@ if (!file.exists(directory)) {
 download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", destfile = paste("./", directory, "/", training_file, sep=""), method="curl", quiet=TRUE)
 download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", destfile = paste("./", directory, "/", testing_file, sep=""), method="curl", quiet=TRUE)
 ```
-Training data was read from the csv file, and some data cleaning was done. The first seven columns (data specific to each record, such as name, timestamps, etc) were removed. Columns that contained any NAs were also removed. This left a total of 59 columns + the "classe" column to be predicted.
+Training data was read from the csv file, and some data cleaning was done. The first seven columns (data specific to each record, such as name, timestamps, etc) were removed. Columns that contained any NAs were also removed. This left a total of 52 columns + the "classe" column to be predicted.
 
 ```{r}
 data_training <- read.csv(paste("./", directory, "/", training_file, sep=""), na.strings= c("NA",""," "))
@@ -45,7 +45,7 @@ inTrain <- createDataPartition(y = data_training_clean$classe, p = 0.7, list = F
 training <- data_training_clean[inTrain, ]
 validation <- data_training_clean[-inTrain, ]
 ```
-A random forest model was selected first to predict the classification because it has methods for balancing error in class population unbalanced data sets. One downside is fitting the model was very slow. Because the random forest model was so slow, a second model using boosting was done.
+A random forest model was selected first because it is purported to have high accuracy. One downside is fitting the model was very slow. Because the random forest model was so slow, a second model using boosting was also performed.
 
 The correlation between any two trees in the forest increases the forest error rate. Therefore, a correllation plot was produced in order to see how strong the variables relationships are with each other (Exhibit 1).
 
@@ -57,7 +57,9 @@ model2
 
 ```
 ## Cross-validation ##
-the validation set was then predicted with the 2 models, and a confusion matrix produced, showing a very high accuracy (99.81%) for random forests, and a slightly lower accuracy for boosting.
+The validation set was then predicted with the 2 models, and a confusion matrix produced, showing a very high accuracy (99.81%) for random forests, and a slightly lower accuracy (96.47%) for boosting. So the out of sample error is very low for either model.The random forest model took about 56 minutes to train, the boosting model only 24 minutes.
+
+
 ```{r}
 predictRFCrossVal1 <- predict(model1, validation)
 confusionMatrix(validation$classe, predictRFCrossVal1)
